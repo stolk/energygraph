@@ -358,7 +358,7 @@ int main(int argc, char* argv[])
 
 	for (int z=0; z<numzones; ++z)
 	{
-		char fname[128];
+		char fname[140];
 		snprintf(fname, sizeof(fname)-1, "%s/energy_uj", dnames[z]);
 		files[z] = fopen(fname,"r");
 		if (!files[z])
