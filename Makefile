@@ -10,7 +10,8 @@ energygraph.1 \
 grapher.h \
 hsv.h \
 README.md \
-LICENSE
+LICENSE \
+images
 
 energygraph: $(SRC)
 	$(CC) -g -Wall -o energygraph $(SRC) -lm
