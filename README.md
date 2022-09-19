@@ -8,13 +8,15 @@ $ make
 
 ## Running
 
-$ ./energygraph
+$ sudo ./energygraph
 
 ## Compatibility
 
 Probably only works on Intel CPUs.
 
 Requires /sys/devices/virtual/powercap/intel-rapl/ entries.
+
+Requires root privileges.
 
 ## Copyright
 

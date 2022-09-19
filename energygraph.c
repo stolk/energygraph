@@ -13,6 +13,7 @@
 #include <time.h>
 #include <termios.h>
 #include <math.h>
+#include <ctype.h>
 
 #include "grapher.h"	// plots an image to the terminal.
 #include "hsv.h"	// hue-saturation-value colour conversions.
@@ -38,6 +39,9 @@ static char dnames[MAXZONES][128];
 
 // Zone names
 static char names[MAXZONES][32];
+
+// Zone names, but capitalized.
+static char capnames[MAXZONES][32];
 
 // File handles for energy_uj for all the RAPL zones.
 static FILE* files[MAXZONES];
@@ -114,6 +118,8 @@ static int locate_rapl_data(void)
 		if (name[strlen(name)-1] == '\n') name[strlen(name)-1]=0;
 		int idx = numzones++;
 		strncpy(names[idx], name, sizeof(names[idx]));
+		for (int i=0; names[idx][i]; ++i)
+			capnames[idx][i] = toupper(names[idx][i]);
 		char* s = strstr(fnam,"/name");
 		assert(s);
 		*s = 0;
@@ -179,7 +185,7 @@ static void set_postscript(void)
 				(colours[z]>> 0)&0xff,
 				(colours[z]>> 8)&0xff,
 				(colours[z]>>16)&0xff,
-				names[z],
+				capnames[z],
 				numchild[z] ? ':' : ' '
 			);
 			strncat(postscript, tag, sizeof(postscript) - 1 - strlen(postscript));
