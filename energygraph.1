@@ -1,0 +1,69 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" (C) Copyright 2022 Bram Stolk <b.stolk@gmail.com>,
+.\"
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH ENERGYGRAPH 1 "September 19 2022"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+energygraph \- program to graph energy use in terminal window.
+.SH SYNOPSIS
+.B sudo ./energygraph
+.SH DESCRIPTION
+This manual page documents the
+.B energygraph
+command.
+.PP
+\fBenergygraph\fP is a program that that shows a live graph of energy usage.
+.br
+It uses RAPL to read the energy use of different zones in the system.
+.br
+.SH ARGUMENTS
+This program does not take arguments on the command line.
+.br
+.SH GRAPH
+The graph shows the energy usage in milliwatts.
+.sp 1
+RAPL zones are organized in a tree topology, where a parent zone can have multiple sub-zones.
+Note that energygraph will display a parent zone with child zones in the same hue.
+.sp 1
+Check the legend for the colour mappings. Also note that top level zones are shown in capitals, and sub-zones in lowercase.
+.sp 1
+Common zone names that you are likely to encounter:
+.SP 1
+.RS
+.B
+package-0
+zone is for one entire CPU.
+.RE
+
+.RS
+.B
+core
+zone is a sub-zone of a package, and is for the CPU-cores on that CPU.
+.RE
+
+.RS
+.B
+uncore
+zone is a sub-zone of a package, and is for energy use that is not part of the cores. Often an integrated GPU will show up as uncore.
+.RE
+
+.RS
+.B
+dram
+zone is for energy used by the random-access memory.
+.RE
+
