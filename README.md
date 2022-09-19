@@ -2,6 +2,8 @@
 
 Graphs the energy use of a host inside a text terminal, using intel-rapl data from the /sys filesystem.
 
+![screenshot](images/screenshot0.png "screenshot")
+
 ## Building
 
 $ make
