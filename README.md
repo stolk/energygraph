@@ -12,9 +12,23 @@ $ make
 
 $ sudo ./energygraph
 
+## Interpreting
+
+See the legend: top level zones are reported in capitals.
+
+sub-zones have the same colour hue as parent.
+
+Zone domains:
+
+ * psys: Platform.
+ * package-N: A CPU.
+ * core: On CPU package. Cores of a CPU.
+ * uncore: On CPU package, but not a core. Typically a gpu.
+ * dram: Memory.
+
 ## Compatibility
 
-Probably only works on Intel CPUs.
+Known to work on AMD as well.
 
 Requires /sys/devices/virtual/powercap/intel-rapl/ entries.
 
