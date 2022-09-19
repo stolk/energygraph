@@ -1,0 +1,15 @@
+Source: energygraph
+Section: contrib/utils
+Priority: optional
+Maintainer: Bram Stolk <bram.stolk@canonical.com>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13)
+Standards-Version: 4.6.1
+Homepage: https://github.com/stolk/energygraph
+
+Package: energygraph
+Architecture: amd64
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Graphs the energy use of a host inside a text terminal, using intel-rapl data from the /sys filesystem.
+ Uses RAPL interface in /sys to determine the energy use of different zones, and graphs it in a text terminal.
