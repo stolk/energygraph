@@ -354,7 +354,11 @@ static void draw_samples(void)
 int main(int argc, char* argv[])
 {
 	const int numfound = locate_rapl_data();
-	(void)numfound;
+	if (!numfound)
+	{
+		fprintf(stderr,"Found zero RAPL entries in your sysfs.\n");
+		exit(3);
+	}
 
 	for (int z=0; z<numzones; ++z)
 	{
