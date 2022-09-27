@@ -14,6 +14,8 @@
 #include <termios.h>
 #include <math.h>
 #include <ctype.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 #include "grapher.h"	// plots an image to the terminal.
 #include "hsv.h"	// hue-saturation-value colour conversions.
@@ -101,54 +103,51 @@ int64_t elapsed_ms_since_last_call( void )
 }
 
 
-// Find the correct entries in /sys that we need.
-static int locate_rapl_data(void)
+static int locate_rapl_data(const char* dirname, int parent)
 {
-	const char* cmd = "find /sys/devices/virtual/powercap/intel-rapl/ -name name -print -exec cat {} \\;";
-	FILE* f = popen(cmd,"r");
-	char fnam[128];
-	char name[128];
-	numzones=0;
-	while(1)
+	DIR* dir = opendir(dirname);
+	if (!dir)
 	{
-		const char* s0 = fgets(fnam, sizeof(fnam), f);
-		const char* s1 = fgets(name, sizeof(name), f);
-		if (!s0 || !s1)
-			break;
-		if (name[strlen(name)-1] == '\n') name[strlen(name)-1]=0;
-		int idx = numzones++;
-		strncpy(names[idx], name, sizeof(names[idx]));
-		for (int i=0; names[idx][i]; ++i)
-			capnames[idx][i] = toupper(names[idx][i]);
-		char* s = strstr(fnam,"/name");
-		assert(s);
-		*s = 0;
-		strncpy(dnames[idx], fnam, sizeof(dnames[idx])-1);
+		fprintf(stderr, "Failed to open directory: %s (%s)\n", dirname, strerror(errno));
+		exit(5);
 	}
-
-	for (int i=0; i<numzones; ++i)
-		numchild[i] = 0;
-	for (int i=0; i<numzones; ++i)
+	struct dirent* ent;
+	int numfound=0;
+	while ((ent = readdir(dir)))
 	{
-		int p=-1;
-		for (int j=0; j<numzones; ++j)
-			if (i!=j && strstr(dnames[i], dnames[j]))
-				p=j;
-		parents[i] = p;
-		if (p>=0)
-			numchild[p] += 1;
+		if (ent->d_type == DT_DIR)
+			if (strstr(ent->d_name, "intel-rapl:"))
+			{
+				numfound++;
+				const char* dn = ent->d_name;
+				assert(strlen(dn) < 32);
+				assert(strlen(dirname)<96);
+				// Create a new entry in our zone data.
+				const int idx = numzones++;
+				assert(idx < MAXZONES);
+				parents[idx] = parent;
+				snprintf(dnames[idx], sizeof(dnames[idx]), "%s/%s", dirname, dn);
+				char namefname[128];
+				assert(strlen(dnames[idx])<120);
+				snprintf(namefname, sizeof(namefname), "%s/name", dnames[idx]);
+				FILE* f = fopen(namefname,"r");
+				if (!f)
+				{
+					fprintf(stderr, "Failed to read %s (%s)\n", namefname, strerror(errno));
+					exit(6);
+				}
+				char* s = fgets(names[idx], sizeof(names[idx]), f);
+				assert(s);
+				fclose(f);
+				if (s[strlen(s)-1] == '\n') s[strlen(s)-1]=0;
+				for (int i=0; names[idx][i]; ++i)
+					capnames[idx][i] = toupper(names[idx][i]);
+				// See if there are subzones for this.
+				numchild[idx] = locate_rapl_data(dnames[idx], idx);
+			}
 	}
-	for (int i=0; i<numzones; ++i)
-	{
-		if (parents[i]==-1)
-		{
-			fprintf(stderr,"%s\n", names[i]);
-			for (int j=0; j<numzones; ++j)
-				if (parents[j] == i)
-					fprintf(stderr, "  %s\n", names[j]);
-		}
-	}
-	return numzones;
+	closedir(dir);
+	return numfound;
 }
 
 
@@ -159,7 +158,8 @@ static void read_values(measurement_t deltas)
 	{
 		char s[32];
 		s[0]=0;
-		fread(s, 1, sizeof(s), files[z]);
+		int numrd = fread(s, 1, sizeof(s), files[z]);
+		(void) numrd;
 		rewind(files[z]);
 		curr[z] = atol(s);
 		deltas[z] = curr[z] - prev[z];
@@ -365,7 +365,8 @@ static void draw_samples(void)
 
 int main(int argc, char* argv[])
 {
-	const int numfound = locate_rapl_data();
+	const char* rapl_dir = "/sys/devices/virtual/powercap/intel-rapl";
+	const int numfound = locate_rapl_data(rapl_dir, -1);
 	if (!numfound)
 	{
 		fprintf(stderr,"Found zero RAPL entries in your sysfs.\n");
@@ -421,20 +422,7 @@ int main(int argc, char* argv[])
 		draw_overlay();
 		draw_samples();
 		update_image();
-#if 0
-		fprintf
-		(
-			stderr,
-			"platform %10ld | "
-			"package-0 %10ld | "
-			"core %10ld | "
-			"uncore %10ld\n",
-			hist[idx][0],
-			hist[idx][3],
-			hist[idx][1],
-			hist[idx][2]
-		);
-#endif
+
 		// See if user pressed ESC.
 		char c=0;
 		const int numr = read( STDIN_FILENO, &c, 1 );
