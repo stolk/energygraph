@@ -283,10 +283,14 @@ static void enableRawMode()
 static void draw_overlay(void)
 {
 	uint32_t quartermw = maxuw / 1000 / 4;
-	snprintf(overlay + imw * (imh/8 * 0) + 1, 80, "%d mW", 4*quartermw);
-	snprintf(overlay + imw * (imh/8 * 1) + 1, 80, "%d mW", 3*quartermw);
-	snprintf(overlay + imw * (imh/8 * 2) + 1, 80, "%d mW", 2*quartermw);
-	snprintf(overlay + imw * (imh/8 * 3) + 1, 80, "%d mW", 1*quartermw);
+	for (int i=0; i<4; ++i)
+	{
+		const int mw = (4-i) * quartermw;
+		const int val = mw >= 10000 ? mw/1000 : mw;
+		const char* units = mw >= 10000 ? "W" : "mW";
+		memset(overlay + imw * (imh/8 * i) + 1, 0, imw < 8 ? imw : 8);
+		snprintf(overlay + imw * (imh/8 * i) + 1, 80, "%d %s", val, units);
+	}
 }
 
 
