@@ -153,6 +153,7 @@ void grapher_update( void )
 void grapher_exit(void)
 {
 	free(im);
+	printf( RESETALL );
 	printf( CLEARSCREEN );
 }
 
