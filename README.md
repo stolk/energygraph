@@ -1,6 +1,8 @@
 # energygraph
 
-Graphs the energy use of a host inside a text terminal, using intel-rapl data from the /sys filesystem.
+Graphs the power use of a host inside a text terminal, using intel-rapl data from the /sys filesystem.
+
+Because the plot ticks at 1 sample per second, you can either read the values as power (Joules per second, or Watt) or as an absolute energy value (Joules.)
 
 ![screenshot](images/screenshot0.png "screenshot")
 
