@@ -33,9 +33,9 @@ uninstall:
 	rm -f ${DESTDIR}/usr/bin/energygraph
 
 tarball:
-	tar cvzf ../energygraph_1.0.orig.tar.gz $(DISTFILES)
+	tar cvzf ../energygraph_1.1.orig.tar.gz $(DISTFILES)
 
 packageupload:
 	debuild -S
-	dput ppa:b-stolk/ppa ../energygraph_1.0-1_source.changes
+	dput ppa:b-stolk/ppa ../energygraph_1.1-1_source.changes
 

@@ -1,3 +1,10 @@
+energygraph (1.1-1) kinetic; urgency=medium
+
+  * Remove dependency on find and cat.
+  * Use gray bars are background for plot.
+
+ -- Bram Stolk <bram.stolk@canonical.com>  Mon, 26 Sep 2022 19:55:10 -0700
+
 energygraph (1.0-1) kinetic; urgency=medium
 
   * Initial release.
