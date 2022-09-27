@@ -13,8 +13,10 @@ README.md \
 LICENSE \
 images
 
+CFLAGS += -g -Wall -O2 -Wno-format-truncation
+
 energygraph: $(SRC)
-	$(CC) -g -Wall -o energygraph $(SRC) -lm
+	$(CC) $(CFLAGS) -o energygraph $(SRC) -lm
 
 clean:
 	rm -f energygraph *.o
