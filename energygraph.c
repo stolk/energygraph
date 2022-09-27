@@ -308,12 +308,20 @@ static int draw_range(int histidx, uint32_t colour, int64_t fr, int64_t to)
 
 static void draw_samples(void)
 {
-	memset(im, 0, sizeof(uint32_t)*imw*imh);
 	const int hsz = histsz();
 	int overflow=0;
+	// Clear the background with black and grey.
+	const uint8_t blck = 0x12;
+	const uint8_t grey = 0x1f;
+	for (int y=0; y<imh; ++y)
+	{
+		const uint8_t v = ( ((y*4) / imh) & 1 ) ? grey : blck;
+		memset(im + y*imw, v, sizeof(uint32_t)*imw);
+	}
+	// Iterates over the columns (1 sample per column.)
 	for (int j=0; j<imw-2; ++j)
 	{
-		if (j<hsz)
+		if (j<hsz)	// Enough history to draw this column?
 		{
 			int h = tail-1-j;
 			h = h < 0 ? h + MAXHIST : h;
@@ -385,6 +393,8 @@ int main(int argc, char* argv[])
 		exit(2);
 	}
 	enableRawMode();
+	printf(SETBG "0;0;0m");
+	printf(CLEARSCREEN);
 	update_image();
 
 	int done=0;
