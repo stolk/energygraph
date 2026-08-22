@@ -64,7 +64,7 @@ static __inline__ uint32_t hsv_to_rgb24(float h, float s, float v)
 	const uint8_t r = (uint8_t)( red * 255.99f);
 	const uint8_t g = (uint8_t)( grn * 255.99f);
 	const uint8_t b = (uint8_t)( blu * 255.99f);
-	return (r<<16) | (g<<8) | (b<<0);
+	return (b<<16) | (g<<8) | (r<<0);
 }
 
 

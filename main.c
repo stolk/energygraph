@@ -6,7 +6,7 @@
 // column, draw. It times nothing critical - a slow paint or a blocked
 // category thread just means a value is repeated, never a stall.
 //
-// (c)2022 Bram Stolk (b.stolk@gmail.com)
+// (c)2022-2026 Bram Stolk (b.stolk@gmail.com)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,10 +41,20 @@ static int   parents[MAXZONES];			// -1 top-level, else parent index.
 
 // --- main-owned (derived after locates) ---
 static int      numzones = 0;
+static int	num_xe = 0;
+static int	num_ag = 0;
+static int	num_nv = 0;
+static int	num_ot = 0;
+static int	bins[MAXZONES];			// in xe, ag, nv or other bin?
+static int	binidx[MAXZONES];		// offset index into assigned bin.
 static char     capnames[MAXZONES][ZONE_NAME_LEN];
 static int      numchild[MAXZONES];
 static float    hues[MAXZONES];
 static uint32_t colours[MAXZONES];
+
+#define NUMBINS 4	// Bin on: XE, AMDGPU, NVIDIA, OTHER.
+static float	hue_lo[NUMBINS];
+static float	hue_hi[NUMBINS];
 
 // --- history ---
 #define MAXHIST 200
@@ -63,8 +73,29 @@ static int histsz(void)
 // Capitalize labels and count children, once, after locates.
 static void derive_meta(void)
 {
+	// assign it to a bin, so it can be properly coloured.
 	for (int z=0; z<numzones; ++z)
 	{
+		if (!strcmp(names[z], "xe"))
+		{
+			binidx[z] = num_xe++;
+			bins[z] = 0;
+		}
+		else if (!strcmp(names[z], "amdgpu"))
+		{
+			binidx[z] = num_ag++;
+			bins[z] = 1;
+		}
+		else if (!strcmp(names[z], "nvidia"))
+		{
+			binidx[z] = num_nv++;
+			bins[z] = 2;
+		}
+		else
+		{
+			binidx[z] = num_ot++;
+			bins[z] = 3;
+		}
 		capnames[z][0] = 0;
 		for (int i=0; names[z][i]; ++i)
 			capnames[z][i] = toupper((unsigned char)names[z][i]);
@@ -79,14 +110,34 @@ static void derive_meta(void)
 
 static void choose_colours(void)
 {
-	int numtoplvl = 0;
-	int h=0;
+	// xe : blues.
+	hue_lo[0] = 210.0f / 360.0f;
+	hue_hi[0] = 270.0f / 360.0f;
+	// ag : reds
+	hue_lo[1] = 335.0f / 360.0f;
+	hue_hi[1] = 380.0f / 360.0f;
+	// nv : greens
+	hue_lo[2] = 100.0f / 360.0f;
+	hue_hi[2] = 130.0f / 360.0f;
+	// other: yellows
+	hue_lo[3] =  45.0f / 360.0f;
+	hue_hi[3] =  75.0f / 360.0f;
+	int bin_sizes[4] = { num_xe, num_ag, num_nv, num_ot, };
+	//fprintf(stderr, "bin_sizes %d %d %d %d\n", num_xe, num_ag, num_nv, num_ot);
+
+	// Top level zones get a hue based on their position in their xe/ag/nv/ot bin.
 	for (int i=0; i<numzones; ++i)
+	{
 		if (parents[i]==-1)
-			numtoplvl++;
-	for (int i=0; i<numzones; ++i)
-		if (parents[i]==-1)
-			hues[i] = (0.15f + h++) / numtoplvl;
+		{
+			const int b = bins[i];
+			const int bsz = bin_sizes[b];
+			float t = (binidx[i] + 0.5f) / bsz;
+			float h = hue_hi[b] * t + hue_lo[b] * (1.0f - t);
+			hues[i] = h >= 1.0f ? h - 1.0f : h;
+		}
+	}
+	// Parented zones inherit the hue from their parent.
 	for (int i=0; i<numzones; ++i)
 		if (parents[i] > -1)
 			hues[i] = hues[ parents[i] ];
@@ -111,6 +162,7 @@ static void choose_colours(void)
 			val = values     [1+j];
 		}
 		colours[i] = hsv_to_rgb24(hue, sat, val);
+		//fprintf(stderr, "hsv %f %f %f : %08x\n", hue, sat, val, colours[i]);
 	}
 }
 
@@ -248,9 +300,12 @@ int main(int argc, char* argv[])
 	// spawns its thread (only if it claimed zones).
 	int n = 0;
 	n += rapl_locate(samples, names, parents, n);
-	n += hwmo_locate(samples, names, parents, n);
 	n += nvml_locate(samples, names, parents, n);
+	n += hwmo_locate(samples, names, parents, n);
 	numzones = n;
+
+	for (int i=0; i<numzones; ++i)
+		assert(parents[i] == -1 || parents[i] < i);
 
 	if (numzones == 0)
 	{
