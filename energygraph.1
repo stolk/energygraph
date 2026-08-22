@@ -4,7 +4,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH ENERGYGRAPH 1 "September 19 2022"
+.TH ENERGYGRAPH 1 "August 22 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -33,6 +33,16 @@ It uses sysfs to read the energy use of different zones in the system.
 .SH ARGUMENTS
 This program does not take arguments on the command line. Run as sudo energygraph on command line.
 .br
+.SH ENVIRONMENT
+.TP
+.B TOLERATE_MISSING_ENERGY_DATA=rapl
+By default, energygraph exits if it cannot open a power zone; RAPL energy
+counters in particular require root. If this variable is set to a value
+containing the name of a category (case-insensitive), energygraph skips the
+unreadable zones of that category and graphs the data it can read instead of
+exiting. Currently only
+.B rapl
+honours this, as it is the only category that can fail to open.
 .SH GRAPH
 The graph shows the energy usage in milliwatts.
 .sp 1

@@ -35,11 +35,22 @@ static void locate_dir(
 	const char* dir, int parent,
 	char names[][ZONE_NAME_LEN], int* parents)
 {
+	const char* s = getenv("TOLERATE_MISSING_ENERGY_DATA");
+	int tolerant = s && strcasestr(s, "RAPL") != 0;
+	const char* hint =
+		"Either run as root, or tolerate missing data:\n"
+		"  $ sudo energygraph\n"
+		"  $ TOLERATE_MISSING_ENERGY_DATA=rapl energygraph\n";
 	DIR* d = opendir(dir);
 	if (!d)
 	{
 		fprintf(stderr, "Failed to open %s - %s\n", dir, strerror(errno));
-		exit(1);
+		if (!tolerant)
+		{
+			fprintf(stderr, "%s", hint);
+			exit(1);
+		}
+		return;
 	}
 	struct dirent* e;
 	while ((e = readdir(d)))
@@ -61,7 +72,12 @@ static void locate_dir(
 		if (!f)
 		{
 			fprintf(stderr, "Failed to open %s - %s\n", fn, strerror(errno));
-			exit(1);
+			if (!tolerant)
+			{
+				fprintf(stderr, "%s", hint);
+				exit(1);
+			}
+			continue;
 		}
 
 		const int gi = base + count;		// global zone index.

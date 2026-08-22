@@ -20,7 +20,7 @@ README.md \
 LICENSE \
 images
 
-CFLAGS += -g -Wall -O2 -Wno-format-truncation
+CFLAGS += -g -Wall -O2 -Wno-format-truncation -std=gnu11
 
 energygraph: $(SRC)
 	$(CC) $(CFLAGS) -o energygraph $(SRC) -lm

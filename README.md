@@ -25,6 +25,12 @@ $ make
 
 $ sudo ./energygraph
 
+Requires root for the RAPL energy counters. If you do not want to run as
+root, you can tolerate missing RAPL data and only graph what is readable
+(e.g. GPUs):
+
+$ TOLERATE_MISSING_ENERGY_DATA=rapl ./energygraph
+
 ## Interpreting
 
 See the legend: top level zones are reported in capitals.
