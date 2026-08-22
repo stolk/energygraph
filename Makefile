@@ -1,7 +1,10 @@
 
 SRC=\
-energygraph.c \
-grapher.c
+main.c \
+rapl.c \
+hwmo.c \
+nvml.c \
+grapher.c \
 
 DISTFILES=\
 $(SRC) \
@@ -33,9 +36,9 @@ uninstall:
 	rm -f ${DESTDIR}/usr/bin/energygraph
 
 tarball:
-	tar cvzf ../energygraph_1.2.orig.tar.gz $(DISTFILES)
+	tar cvzf ../energygraph_1.3.orig.tar.gz $(DISTFILES)
 
 packageupload:
 	debuild -S
-	dput ppa:b-stolk/ppa ../energygraph_1.2-1_source.changes
+	dput ppa:b-stolk/ppa ../energygraph_1.3-1_source.changes
 

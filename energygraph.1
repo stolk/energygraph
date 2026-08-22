@@ -28,10 +28,10 @@ command.
 .PP
 \fBenergygraph\fP is a program that that shows a live graph of energy usage.
 .br
-It uses RAPL to read the energy use of different zones in the system.
+It uses sysfs to read the energy use of different zones in the system.
 .br
 .SH ARGUMENTS
-This program does not take arguments on the command line.
+This program does not take arguments on the command line. Run as sudo energygraph on command line.
 .br
 .SH GRAPH
 The graph shows the energy usage in milliwatts.
@@ -45,7 +45,7 @@ Common zone names that you are likely to encounter:
 .SP 1
 .RS
 .B
-package-0
+PACKAGE-0
 zone is for one entire CPU.
 .RE
 
@@ -63,7 +63,25 @@ zone is a sub-zone of a package, and is for energy use that is not part of the c
 
 .RS
 .B
-dram
+DRAM
 zone is for energy used by the random-access memory.
+.RE
+
+.RS
+.B
+XE
+zone is for energy used by Intel GPU.
+.RE
+
+.RS
+.B
+AMDGPU
+zone is for energy used by AMD GPU.
+.RE
+
+.RS
+.B
+NVIDIA
+zone is for energy used by NVIDIA GPU.
 .RE
 
