@@ -192,10 +192,11 @@ static void set_postscript(void)
 
 static int update_image(void)
 {
+	int resized = grapher_resized;
 	if (grapher_resized)
 		grapher_adapt_to_new_size();
 	grapher_update();
-	return grapher_resized;
+	return resized;
 }
 
 static void draw_overlay(void)
@@ -226,7 +227,7 @@ static int draw_range(int histidx, uint32_t colour, int64_t fr, int64_t to)
 	return l1 >= imh-1;
 }
 
-static void draw_samples(void)
+static int draw_samples(void)
 {
 	const int hsz = histsz();
 	int overflow=0;
@@ -270,6 +271,7 @@ static void draw_samples(void)
 	}
 	if (overflow)
 		maxuw *= 2;
+	return overflow;
 }
 
 // Terminal handling
@@ -328,6 +330,7 @@ int main(int argc, char* argv[])
 	enableRawMode();
 	printf(SETBG "0;0;0m");
 	printf(CLEARSCREEN);
+
 	update_image();
 
 	int done=0;
@@ -345,9 +348,20 @@ int main(int argc, char* argv[])
 		if ( tail == head )
 			head = (head + 1) % MAXHIST;
 
-		draw_overlay();
-		draw_samples();
-		update_image();
+		// keep updating the image while Y-axis adjusts, or terminal resizes.
+		int needs_ui_refresh = 1;
+		while (needs_ui_refresh)
+		{
+			draw_overlay();
+			const int axis_rescaled = draw_samples();
+			const int terminal_resized = update_image();
+			needs_ui_refresh = axis_rescaled + terminal_resized;
+			if (needs_ui_refresh)
+			{
+				struct timespec s = { 0, 199999999 };	// pace redraws to 5fps.
+				nanosleep(&s, NULL);
+			}
+		}
 
 		// ESC / q to quit (non-blocking; VMIN/VTIME=0).
 		char c=0;
