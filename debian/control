@@ -1,7 +1,7 @@
 Source: energygraph
 Section: contrib/utils
 Priority: optional
-Maintainer: Bram Stolk <bram.stolk@canonical.com>
+Maintainer: Bram Stolk <b.stolk@gmail.com>
 Rules-Requires-Root: no
 Build-Depends:
  debhelper-compat (= 13)

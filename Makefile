@@ -12,6 +12,10 @@ Makefile \
 energygraph.1 \
 grapher.h \
 hsv.h \
+hwmo.h \
+nvml.h \
+rapl.h \
+zones.h \
 README.md \
 LICENSE \
 images
