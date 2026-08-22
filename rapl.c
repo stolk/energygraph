@@ -11,6 +11,7 @@
 #include <pthread.h>
 #include <stdatomic.h>
 #include <stdint.h>
+#include <errno.h>
 
 #include "rapl.h"
 
@@ -36,7 +37,10 @@ static void locate_dir(
 {
 	DIR* d = opendir(dir);
 	if (!d)
-		return;
+	{
+		fprintf(stderr, "Failed to open %s - %s\n", dir, strerror(errno));
+		exit(1);
+	}
 	struct dirent* e;
 	while ((e = readdir(d)))
 	{
@@ -55,7 +59,10 @@ static void locate_dir(
 		snprintf(fn, sizeof(fn), "%s/energy_uj", sub);
 		FILE* f = fopen(fn, "r");
 		if (!f)
-			continue;
+		{
+			fprintf(stderr, "Failed to open %s - %s\n", fn, strerror(errno));
+			exit(1);
+		}
 
 		const int gi = base + count;		// global zone index.
 		files[count]   = f;
