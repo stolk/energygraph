@@ -8,10 +8,10 @@ Graphs the power use of a host inside a text terminal, using:
 
 Because the plot ticks at 1 sample per second, you can either read the values as power (Joules per second, or Watt) or as an absolute energy value (Joules.)
 
-![screenshot](images/screenshot1.png "screenshot")
+![screenshot](images/screenshot2.png "screenshot")
 
-In this screenshot we see a xeon server with two intel Arc B70 GPUs in blue, and CPU in beige.
-The system started out idle, followed by hammering CPU with parallel compiling, followed by prompting a local llama.cpp during which another compile run was started. In the end, llama quiets down again.
+In this screenshot we see a machine with an AMD Radeon RX7600 and an Intel Arc B580 GPU.
+The machine starts idle. The first peak is when the CPU is hammered, the second peak when the Radeon is hammered, the third peak when the Arc is hammered, and the last peak when all three are hammered.
 
 ## Dependencies
 
